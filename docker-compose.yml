@@ -12,6 +12,7 @@ services:
       - "8080:8080"
     depends_on:
       - fpm
+      - db
     stop_signal: SIGTERM
 
   # Процесс fpm
@@ -36,3 +37,25 @@ services:
     entrypoint: /bin/sh
     volumes:
       - ./:/code
+
+  # MySQL
+  db:
+    image: mysql:5.7.22
+    container_name: db
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: lumen-push
+      MYSQL_ROOT_PASSWORD: yd9Maw
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    volumes:
+      - dbdata:/var/lib/mysql
+      - ./docker/mysql/my.cnf:/etc/mysql/my.cnf
+
+# Тома
+volumes:
+  dbdata:
+    driver: local

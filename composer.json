@@ -1,0 +1,11 @@
+{
+    "name": "tazya/kolesa-push",
+    "type": "project",
+    "authors": [
+        {
+            "name": "Pavel Chernyshev",
+            "email": "vengador32@gmail.com"
+        }
+    ],
+    "require": {}
+}

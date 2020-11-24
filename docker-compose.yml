@@ -47,7 +47,7 @@ services:
     ports:
       - "3306:3306"
     environment:
-      MYSQL_DATABASE: lumen-push
+      MYSQL_DATABASE: lumen_push
       MYSQL_ROOT_PASSWORD: yd9Maw
       SERVICE_TAGS: dev
       SERVICE_NAME: mysql

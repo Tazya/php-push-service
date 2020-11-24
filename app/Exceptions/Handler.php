@@ -3,10 +3,14 @@ namespace App\Exceptions;
 
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
 use Laravel\Lumen\Exceptions\Handler as ExceptionHandler;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
 /**
@@ -24,6 +28,8 @@ class Handler extends ExceptionHandler
         HttpException::class,
         ModelNotFoundException::class,
         ValidationException::class,
+        MethodNotAllowedHttpException::class,
+        NotFoundHttpException::class,
     ];
 
     /**
@@ -44,14 +50,24 @@ class Handler extends ExceptionHandler
     /**
      * Render an exception into an HTTP response.
      *
-     * @param  Request                                                 $request
-     * @param  Throwable                                               $exception
-     * @return \Illuminate\Http\Response|\Illuminate\Http\JsonResponse
+     * @param  Request               $request
+     * @param  Throwable             $exception
+     * @return Response|JsonResponse
      *
      * @throws Throwable
      */
     public function render($request, Throwable $exception)
     {
+        if ($exception instanceof NotFoundHttpException) {
+            return response()
+                ->json(['status' => 'error', 'message' => 'Маршрут не найден'], 404);
+        }
+
+        if ($exception instanceof MethodNotAllowedHttpException) {
+            return response()
+                ->json(['status' => 'error', 'message' => 'Неверный метод'], 405);
+        }
+
         return parent::render($request, $exception);
     }
 }

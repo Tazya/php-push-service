@@ -37,12 +37,18 @@ $app->withFacades();
 | Регистрирация контейнеров
 |--------------------------------------------------------------------------
 |
-| Контейнер в сервисе используются для обработки исключений
+| Контейнеры в сервисе используются для обработки исключений
+| и консольных команд artisan
 |
 */
 $app->singleton(
     Illuminate\Contracts\Debug\ExceptionHandler::class,
     App\Exceptions\Handler::class
+);
+
+$app->singleton(
+    Illuminate\Contracts\Console\Kernel::class,
+    App\Console\Kernel::class
 );
 
 /*

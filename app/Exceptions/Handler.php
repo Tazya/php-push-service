@@ -33,28 +33,15 @@ class Handler extends ExceptionHandler
     ];
 
     /**
-     * Репорт в логи ошибок
-     *
-     * @param  Throwable $exception
-     * @return void
-     *
-     * @throws \Exception
-     */
-    public function report(Throwable $exception)
-    {
-        parent::report($exception);
-    }
-
-    /**
      * Рендер исключений и ошибок в HTTP ответ
      *
-     * @param  Request               $request
-     * @param  Throwable             $exception
-     * @return Response|JsonResponse
+     * @param  Request      $request
+     * @param  Throwable    $exception
+     * @return JsonResponse
      *
      * @throws Throwable
      */
-    public function render($request, Throwable $exception)
+    public function render($request, Throwable $exception): JsonResponse
     {
         if ($exception instanceof NotFoundHttpException) {
             return response()
@@ -70,7 +57,8 @@ class Handler extends ExceptionHandler
             return $this->renderValidatorErrors($exception);
         }
 
-        return parent::render($request, $exception);
+        return response()
+            ->json(['status' => 'error', 'message' => 'Ошибка при обращении к базе данных'], 500);
     }
 
     /**

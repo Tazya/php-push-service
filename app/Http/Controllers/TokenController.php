@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Laravel\Lumen\Routing\Controller;
 
 /**
@@ -23,14 +24,29 @@ class TokenController extends Controller
         ];
 
         $data = $this->validate($request, [
+            'user_id'   => 'integer',
             'device_id' => 'required',
             'token'     => 'required',
             'os'        => 'required',
             'version'   => 'required',
         ], $messages);
 
+        $isAuthorized   = array_key_exists('user_id', $data);
+        $preparedValues = array_merge($data, ['authorized' => $isAuthorized]);
+
+        $token = DB::table('tokens')
+            ->where('device_id', $data['device_id'])->first();
+
+        if ($token) {
+            DB::table('tokens')
+                ->where('device_id', $data['device_id'])
+                ->update($preparedValues);
+        } else {
+            DB::table('tokens')->insert($preparedValues);
+        }
+
         return response()
-            ->json(['status' => 'OK', 'kolesa' => 'hello']);
+            ->json(['status' => 'ok']);
     }
 
     /**
@@ -52,8 +68,20 @@ class TokenController extends Controller
             'device_id' => 'required_without:user_id',
         ], $messages);
 
+        if (array_key_exists('user_id', $data)) {
+            $tokens = DB::table('tokens')
+                ->where('user_id', $data['user_id'])
+                ->select('user_id', 'device_id', 'token', 'os', 'version')
+                ->get();
+        } else {
+            $tokens = DB::table('tokens')
+                ->where('device_id', $data['device_id'])
+                ->select('device_id', 'token', 'os', 'version')
+                ->get();
+        }
+
         return response()
-            ->json(['status' => 'OK', 'kolesa' => 'hello']);
+            ->json(['status' => 'ok', 'tokens' => $tokens]);
     }
 
     /**
@@ -72,7 +100,11 @@ class TokenController extends Controller
             'token'   => 'required',
         ], $messages);
 
+        DB::table('tokens')
+            ->where('token', $data['token'])
+            ->delete();
+
         return response()
-            ->json(['status' => 'OK', 'kolesa' => 'hello']);
+            ->json(['status' => 'ok']);
     }
 }

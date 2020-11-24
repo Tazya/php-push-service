@@ -1,7 +1,8 @@
 <?php
 
-/** @var \Laravel\Lumen\Routing\Router $router */
-$router->get('/', function () use ($router) {
-    return response()
-        ->json(['status' => 'OK', 'kolesa' => 'hello']);
-});
+use Laravel\Lumen\Routing\Router;
+
+/** @var Router $router */
+$router->get('save', 'TokenController@create');
+$router->get('get', 'TokenController@read');
+$router->get('delete', 'TokenController@delete');

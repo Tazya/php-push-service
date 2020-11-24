@@ -18,6 +18,17 @@ class TokenController extends Controller
      */
     public function create(Request $request): JsonResponse
     {
+        $messages = [
+            'required' => 'required|Переданы не все данные',
+        ];
+
+        $data = $this->validate($request, [
+            'device_id' => 'required',
+            'token'     => 'required',
+            'os'        => 'required',
+            'version'   => 'required',
+        ], $messages);
+
         return response()
             ->json(['status' => 'OK', 'kolesa' => 'hello']);
     }
@@ -31,6 +42,16 @@ class TokenController extends Controller
      */
     public function read(Request $request): JsonResponse
     {
+        $messages = [
+            'user_id.required_without'   => 'required|Не передан идентификатор пользователя',
+            'device_id.required_without' => 'required|Не передан идентификатор устройства',
+        ];
+
+        $data = $this->validate($request, [
+            'user_id'   => 'required_without:device_id',
+            'device_id' => 'required_without:user_id',
+        ], $messages);
+
         return response()
             ->json(['status' => 'OK', 'kolesa' => 'hello']);
     }
@@ -43,6 +64,14 @@ class TokenController extends Controller
      */
     public function delete(Request $request): JsonResponse
     {
+        $messages = [
+            'token.required'   => 'required|Не указан token для удаления',
+        ];
+
+        $data = $this->validate($request, [
+            'token'   => 'required',
+        ], $messages);
+
         return response()
             ->json(['status' => 'OK', 'kolesa' => 'hello']);
     }

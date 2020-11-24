@@ -9,7 +9,8 @@
     ],
     "require": {
         "php": "^7.3",
-        "laravel/lumen-framework": "^8.2"
+        "laravel/lumen-framework": "^8.2",
+        "ext-json": "^7.4"
     },
     "autoload": {
         "classmap": [

@@ -33,9 +33,7 @@ class Handler extends ExceptionHandler
     ];
 
     /**
-     * Report or log an exception.
-     *
-     * This is a great spot to send exceptions to Sentry, Bugsnag, etc.
+     * Репорт в логи ошибок
      *
      * @param  Throwable $exception
      * @return void
@@ -48,7 +46,7 @@ class Handler extends ExceptionHandler
     }
 
     /**
-     * Render an exception into an HTTP response.
+     * Рендер исключений и ошибок в HTTP ответ
      *
      * @param  Request               $request
      * @param  Throwable             $exception
@@ -68,6 +66,43 @@ class Handler extends ExceptionHandler
                 ->json(['status' => 'error', 'message' => 'Неверный метод'], 405);
         }
 
+        if ($exception instanceof ValidationException) {
+            return $this->renderValidatorErrors($exception);
+        }
+
         return parent::render($request, $exception);
+    }
+
+    /**
+     * Рендер ошибок валидации в формате json в HTTP ответ
+     *
+     * @param  Throwable    $exception
+     * @return JsonResponse
+     *
+     * @throws Throwable
+     */
+    protected function renderValidatorErrors(Throwable $exception): JsonResponse
+    {
+        $errors            = collect($exception->errors());
+        $validatorMessages = $errors
+            ->map(static function ($inputErrors) {
+                $firstInputError = $inputErrors[0];
+                [$shortMessage]  = explode('|', $firstInputError);
+
+                return $shortMessage;
+            });
+
+        $firstError         = $errors->first();
+        $firstErrorMessages = explode('|', $firstError[0]);
+        $fullErrorMessage   = $firstErrorMessages[1] ?? $firstErrorMessages[0];
+
+        $preparedErrors = [
+            'status'     => 'error',
+            'validation' => $validatorMessages,
+            'message'    => $fullErrorMessage,
+        ];
+
+        return response()
+            ->json($preparedErrors, 400);
     }
 }

@@ -24,15 +24,12 @@ class TokenController extends Controller
         ];
 
         $data = $this->validate($request, [
-            'user_id'   => 'integer',
+            'user_id'   => 'nullable|integer',
             'device_id' => 'required',
             'token'     => 'required',
             'os'        => 'required',
             'version'   => 'required',
         ], $messages);
-
-        $isAuthorized   = array_key_exists('user_id', $data);
-        $preparedValues = array_merge($data, ['authorized' => $isAuthorized]);
 
         $token = DB::table('tokens')
             ->where('device_id', $data['device_id'])->first();
@@ -40,9 +37,9 @@ class TokenController extends Controller
         if ($token) {
             DB::table('tokens')
                 ->where('device_id', $data['device_id'])
-                ->update($preparedValues);
+                ->update($data);
         } else {
-            DB::table('tokens')->insert($preparedValues);
+            DB::table('tokens')->insert($data);
         }
 
         return response()

@@ -93,11 +93,11 @@ class TokenController extends Controller
     public function delete(Request $request): JsonResponse
     {
         $messages = [
-            'token.required'   => 'required|Не указан token для удаления',
+            'token.required' => 'required|Не указан token для удаления',
         ];
 
         $data = $this->validate($request, [
-            'token'   => 'required',
+            'token' => 'required',
         ], $messages);
 
         DB::table('tokens')

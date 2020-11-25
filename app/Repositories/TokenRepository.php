@@ -26,14 +26,48 @@ class TokenRepository
     }
 
     /**
-     * Сохранить токен
+     * Сохраняет токен
      *
      * @param  array $data
      * @return Token
      */
     public function save(array $data): Token
     {
-        // Здесь будет логика сохранения токена;
-        return new $this->token;
+        $token = $this->token->where('device_id', $data['device_id'])->get() ?? new $this->token;
+
+        $token->user_id   = $data['user_id'];
+        $token->device_id = $data['device_id'];
+        $token->token     = $data['token'];
+        $token->os        = $data['os'];
+        $token->version   = $data['version'];
+
+        $token->save();
+
+        return $token->fresh();
+    }
+
+    /**
+     * Получает токены по признаку пользователя или устройства
+     *
+     * @param  array $data
+     * @return array
+     */
+    public function get(array $data): array
+    {
+        if (array_key_exists('user_id', $data)) {
+            return $this->token->where('user_id', $data['user_id'])->get();
+        }
+
+        return $this->token->where('device_id', $data['device_id'])->get();
+    }
+
+    /**
+     * Удаляет токен
+     *
+     * @param  string $token
+     */
+    public function delete(string $token): array
+    {
+        $this->token->where('token', $token)->get()->first()->delete();
     }
 }

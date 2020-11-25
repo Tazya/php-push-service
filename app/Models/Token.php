@@ -22,6 +22,15 @@ class Token extends Model
     ];
 
     /**
+     * Параметры атрибутов для записи по-умолчанию
+     *
+     * @var array
+     */
+    protected $attributes = [
+        'user_id' => null,
+    ];
+
+    /**
      * Атрибуты, которые будут скрыты из JSON представления токена
      *
      * @var array

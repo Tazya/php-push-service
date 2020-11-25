@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Services\TokenService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -11,6 +12,24 @@ use Laravel\Lumen\Routing\Controller;
  */
 class TokenController extends Controller
 {
+    /**
+     * Сервис-контейнер push-токена
+     *
+     * @var TokenService
+     */
+    protected $tokenService;
+
+    /**
+     * PostController Constructor
+     *
+     * @param TokenService $tokenService
+     *
+     */
+    public function __construct(TokenService $tokenService)
+    {
+        $this->tokenService = $tokenService;
+    }
+
     /**
      * Создает или обновляет токен
      *

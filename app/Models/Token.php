@@ -9,7 +9,14 @@ use Illuminate\Database\Eloquent\Model;
 class Token extends Model
 {
     /**
-     * Атрибуты, доступные для записи
+     * Включает использование полей updated_at и created_at.
+     *
+     * @var bool
+     */
+    public $timestamps = false;
+
+    /**
+     * Атрибуты, доступные для записи.
      *
      * @var array
      */
@@ -22,7 +29,7 @@ class Token extends Model
     ];
 
     /**
-     * Параметры атрибутов для записи по-умолчанию
+     * Параметры атрибутов для записи по-умолчанию.
      *
      * @var array
      */
@@ -31,11 +38,22 @@ class Token extends Model
     ];
 
     /**
-     * Атрибуты, которые будут скрыты из JSON представления токена
+     * Атрибуты, которые будут скрыты из JSON представления токена.
      *
      * @var array
      */
     protected $hidden = [
         'id',
     ];
+
+    /**
+     * Запрашивает токен по user_id
+     *
+     * @param int $userId
+     */
+    public function findTokenByUserId(int $userId)
+    {
+        $token  = self::where('device_id', $userId);
+        $tokens = self::all();
+    }
 }

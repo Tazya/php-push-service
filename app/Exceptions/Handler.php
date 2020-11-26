@@ -58,7 +58,7 @@ class Handler extends ExceptionHandler
         }
 
         return response()
-            ->json(['status' => 'error', 'message' => 'Ошибка при обращении к базе данных'], 500);
+            ->json(['status' => 'error', 'message' => $exception->getMessage()], 500);
     }
 
     /**

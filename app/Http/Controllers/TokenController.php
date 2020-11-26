@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 use App\Services\TokenService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Laravel\Lumen\Routing\Controller;
 
 /**
@@ -38,28 +37,15 @@ class TokenController extends Controller
      */
     public function create(Request $request): JsonResponse
     {
-        $messages = [
-            'required' => 'required|Переданы не все данные',
-        ];
+        $data = $request->only([
+            'user_id',
+            'device_id',
+            'token',
+            'os',
+            'version',
+        ]);
 
-        $data = $this->validate($request, [
-            'user_id'   => 'nullable|integer',
-            'device_id' => 'required',
-            'token'     => 'required',
-            'os'        => 'required',
-            'version'   => 'required',
-        ], $messages);
-
-        $token = DB::table('tokens')
-            ->where('device_id', $data['device_id'])->first();
-
-        if ($token) {
-            DB::table('tokens')
-                ->where('device_id', $data['device_id'])
-                ->update($data);
-        } else {
-            DB::table('tokens')->insert($data);
-        }
+        $this->tokenService->saveTokenData($data);
 
         return response()
             ->json(['status' => 'ok']);
@@ -74,27 +60,12 @@ class TokenController extends Controller
      */
     public function read(Request $request): JsonResponse
     {
-        $messages = [
-            'user_id.required_without'   => 'required|Не передан идентификатор пользователя',
-            'device_id.required_without' => 'required|Не передан идентификатор устройства',
-        ];
+        $data = $request->only([
+            'user_id',
+            'device_id',
+        ]);
 
-        $data = $this->validate($request, [
-            'user_id'   => 'required_without:device_id',
-            'device_id' => 'required_without:user_id',
-        ], $messages);
-
-        if (array_key_exists('user_id', $data)) {
-            $tokens = DB::table('tokens')
-                ->where('user_id', $data['user_id'])
-                ->select('user_id', 'device_id', 'token', 'os', 'version')
-                ->get();
-        } else {
-            $tokens = DB::table('tokens')
-                ->where('device_id', $data['device_id'])
-                ->select('device_id', 'token', 'os', 'version')
-                ->get();
-        }
+        $tokens = $this->tokenService->getTokens($data);
 
         return response()
             ->json(['status' => 'ok', 'tokens' => $tokens]);
@@ -108,17 +79,9 @@ class TokenController extends Controller
      */
     public function delete(Request $request): JsonResponse
     {
-        $messages = [
-            'token.required' => 'required|Не указан token для удаления',
-        ];
+        $tokenId = $request->input('token');
 
-        $data = $this->validate($request, [
-            'token' => 'required',
-        ], $messages);
-
-        DB::table('tokens')
-            ->where('token', $data['token'])
-            ->delete();
+        $this->tokenService->delete($tokenId);
 
         return response()
             ->json(['status' => 'ok']);

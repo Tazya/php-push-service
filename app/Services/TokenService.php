@@ -28,9 +28,9 @@ class TokenService
     }
 
     /**
-     * Проверяет данные на валидность и сохраняет push-токен
+     * Проверяет данные на валидность и сохраняет push-токен.
      *
-     * @param  array $data
+     * @param  array               $data
      * @throws ValidationException
      * @return object
      */
@@ -58,9 +58,9 @@ class TokenService
     }
 
     /**
-     * Проверяет данные на валидность и возвращает токены по репозиторию
+     * Проверяет данные на валидность и возвращает токены по репозиторию.
      *
-     * @param  array $data
+     * @param  array               $data
      * @throws ValidationException
      * @return array
      */
@@ -86,22 +86,23 @@ class TokenService
     }
 
     /**
-     * Проверяет данные на валидность и удаляет токен
+     * Проверяет данные на валидность и удаляет токен.
      *
-     * @param  string $token
+     * @param  mixed               $token
      * @throws ValidationException
-     * @return array
+     * @return void
      */
-    public function delete(string $token)
+    public function delete($token): void
     {
         $messages = [
             'token.required' => 'required|Не указан token для удаления',
             'token.string'   => 'string|Не указан token для удаления',
+            'token.exists'   => 'exists|Токен не найден',
         ];
 
         $validator = Validator::make(
             ['token' => $token],
-            ['token' => 'required|string'],
+            ['token' => 'required|string|exists:tokens,token'],
             $messages
         );
 

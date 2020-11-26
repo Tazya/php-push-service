@@ -33,9 +33,9 @@ class TokenRepository
      */
     public function save(array $data): Token
     {
-        $token = $this->token->where('device_id', $data['device_id'])->get() ?? new $this->token;
+        $token = $this->token->where('device_id', $data['device_id'])->first() ?? new $this->token;
 
-        $token->user_id   = $data['user_id'];
+        $token->user_id   = $data['user_id'] ?? null;
         $token->device_id = $data['device_id'];
         $token->token     = $data['token'];
         $token->os        = $data['os'];
@@ -55,18 +55,28 @@ class TokenRepository
     public function get(array $data): array
     {
         if (array_key_exists('user_id', $data)) {
-            return $this->token->where('user_id', $data['user_id'])->get();
+            return $this
+                ->token
+                ->where('user_id', $data['user_id'])
+                ->get()
+                ->toArray();
         }
 
-        return $this->token->where('device_id', $data['device_id'])->get();
+        return $this
+            ->token
+            ->where('device_id', $data['device_id'])
+            ->select('device_id', 'token', 'os', 'version')
+            ->get()
+            ->toArray();
     }
 
     /**
      * Удаляет токен
      *
      * @param  string $token
+     * @return void
      */
-    public function delete(string $token): array
+    public function delete(string $token): void
     {
         $this->token->where('token', $token)->get()->first()->delete();
     }

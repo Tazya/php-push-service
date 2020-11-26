@@ -45,15 +45,4 @@ class Token extends Model
     protected $hidden = [
         'id',
     ];
-
-    /**
-     * Запрашивает токен по user_id
-     *
-     * @param int $userId
-     */
-    public function findTokenByUserId(int $userId)
-    {
-        $token  = self::where('device_id', $userId);
-        $tokens = self::all();
-    }
 }

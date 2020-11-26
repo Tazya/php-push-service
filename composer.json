@@ -10,7 +10,9 @@
     "require": {
         "php": "^7.3",
         "laravel/lumen-framework": "^8.2",
-        "ext-json": "^7.4"
+        "ext-json": "^7.4",
+        "predis/predis": "^1.1",
+        "illuminate/redis": "^8.16"
     },
     "autoload": {
         "classmap": [

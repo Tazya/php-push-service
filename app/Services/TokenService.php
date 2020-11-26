@@ -2,6 +2,7 @@
 namespace App\Services;
 
 use App\Repositories\TokenRepository;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
@@ -10,6 +11,13 @@ use Illuminate\Validation\ValidationException;
  */
 class TokenService
 {
+    /**
+     * Время жизни кэша в секундах
+     *
+     * @const CACHE_EXPIRATION
+     */
+    protected const CACHE_EXPIRATION = 600;
+
     /**
      * Токен-репозиторий.
      *
@@ -64,7 +72,7 @@ class TokenService
      * @throws ValidationException
      * @return array
      */
-    public function getTokens(array $data)
+    public function getTokens(array $data): array
     {
         $messages = [
             'user_id.required_without'   => 'required|Не передан идентификатор пользователя',
@@ -82,7 +90,18 @@ class TokenService
             throw new ValidationException($validator);
         }
 
-        return $this->tokenRepository->get($data);
+        $cacheKey = isset($data['user_id'])
+            ? "user_id:{$data['user_id']}"
+            : "device_id:{$data['device_id']}";
+
+        if (Cache::has($cacheKey)) {
+            return Cache::get($cacheKey);
+        }
+
+        $tokens = $this->tokenRepository->get($data);
+        Cache::put($cacheKey, $tokens, self::CACHE_EXPIRATION);
+
+        return $tokens;
     }
 
     /**
@@ -110,6 +129,17 @@ class TokenService
             throw new ValidationException($validator);
         }
 
-        $this->tokenRepository->delete($token);
+        $data = $this->tokenRepository->delete($token);
+
+        $cacheDeviceKey = "device_id:{$data['device_id']}";
+        $cacheUserKey   = isset($data['user_id'])
+            ? "user_id:{$data['user_id']}"
+            : null;
+
+        if ($cacheUserKey) {
+            Cache::forget($cacheUserKey);
+        }
+
+        Cache::forget($cacheDeviceKey);
     }
 }

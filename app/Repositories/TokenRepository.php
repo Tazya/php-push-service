@@ -73,11 +73,16 @@ class TokenRepository
     /**
      * Удаляет токен
      *
-     * @param  string $token
-     * @return void
+     * @param  string $tokenId
+     * @return array
      */
-    public function delete(string $token): void
+    public function delete(string $tokenId): array
     {
-        $this->token->where('token', $token)->get()->first()->delete();
+        $token     = $this->token->where('token', $tokenId)->get()->first();
+        $tokenData = $token->toArray();
+
+        $token->delete();
+
+        return $tokenData;
     }
 }

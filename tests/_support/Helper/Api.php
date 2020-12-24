@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile
 namespace Helper;
 
 // here you can define custom actions
@@ -6,5 +7,4 @@ namespace Helper;
 
 class Api extends \Codeception\Module
 {
-
 }

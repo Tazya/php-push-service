@@ -12,6 +12,8 @@ services:
       - "8080:8080"
     depends_on:
       - fpm
+      - db
+      - redis
     stop_signal: SIGTERM
 
   # Процесс fpm
@@ -36,3 +38,43 @@ services:
     entrypoint: /bin/sh
     volumes:
       - ./:/code
+
+  # MySQL
+  db:
+    image: mysql:5.7.22
+    container_name: db
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: lumen_push
+      MYSQL_ROOT_PASSWORD: yd9Maw
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    volumes:
+      - dbdata:/var/lib/mysql
+      - ./docker/mysql/my.cnf:/etc/mysql/my.cnf
+
+  # Redis
+  redis:
+    image: redis:alpine
+    command: redis-server
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/var/lib/redis
+
+  # Командная строка Redis
+  rediscli:
+    image: redis:alpine
+    links:
+      - redis
+    command: redis-cli -h redis
+
+# Тома
+volumes:
+  dbdata:
+    driver: local
+  redis-data:
+    driver: local
